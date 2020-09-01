@@ -7,7 +7,6 @@ const Card = ({anime, i, active, size, clickFunction}) => {
       style={{backgroundImage: `url(${anime.attributes.posterImage.small})`}}
       onClick={() => clickFunction(i)}
     >
-      {anime.attributes.canonicalTitle}
     </div>
   )
 }

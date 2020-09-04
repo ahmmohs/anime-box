@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import Fade from 'react-reveal/Fade';
 
 import * as actions from '../actions';
 import { useSelector, useDispatch } from 'react-redux';
@@ -18,6 +19,35 @@ const Discover = () => {
   const watchList = useSelector(state => state.ids);
   const watchDispatch = useDispatch();
 
+
+  const updateSelected = () => {
+    if (selected <= 8) {
+      setSelected(selected + 1);
+    } else {
+      setSelected(0);
+    }
+  }
+
+  let scrollInterval = null;
+  const scrollRow = (direction) => {
+    if (direction) {
+      clearInterval(scrollInterval);
+      scrollInterval = setInterval(() => {
+        document.getElementById('discoverRow').scrollLeft += 10
+      }, 10);
+    } else {
+      clearInterval(scrollInterval);
+      scrollInterval = setInterval(() => {
+        document.getElementById('discoverRow').scrollLeft -= 10
+      }, 10);
+    }
+  }
+
+  const stopScroll = () => {
+    console.log('Stopping scroll');
+    clearInterval(scrollInterval);
+  }
+
   useEffect(() => {
 
     /* Only fetch trending animes on mount */
@@ -31,13 +61,7 @@ const Discover = () => {
     }
     
     /* Interval to cycle through animes */
-    const interval = setInterval(() => {
-      if (selected <= 8) {
-        setSelected(selected + 1);
-      } else {
-        setSelected(0);
-      }
-    }, 5000);
+    const interval = setInterval(() => updateSelected(), 5000);
     
     /* Clear timeout when component unmounts */
     return () => clearInterval(interval);
@@ -65,22 +89,30 @@ const Discover = () => {
                         type: 'UPDATE',
                         payload: {id: animes[selected].id, anime: animes[selected]}
                       });
+                      updateSelected();
                     }}
                     color="neutral"
                   />
                 </div>
               </div>
-              <div className="anime__row">
-                {animes.map((anime, i) => (
-                  <Card
-                    key={i}
-                    anime={anime}
-                    i={i}
-                    size="med"
-                    active={selected === i ? true : false}
-                    clickFunction={setSelected}
-                  />
-                ))}
+              <div className="anime__row__wrapper">
+                <div className="row__left" onMouseEnter={() => scrollRow(false)} onMouseLeave={() => stopScroll()}></div>
+                <div className="anime__row" id="discoverRow">
+                  <Fade bottom>
+                    {animes.map((anime, i) => (
+                      <Card
+                        key={i}
+                        anime={anime}
+                        i={i}
+                        size="med"
+                        active={selected === i ? true : false}
+                        clickFunction={setSelected}
+                      />
+                    ))}
+                  </Fade>
+                </div>
+                <div className="row--spacer" />
+                <div className="row__right" onMouseEnter={() => scrollRow(true)} onMouseLeave={() => stopScroll()}></div>
               </div>
             </div>
           </div>
